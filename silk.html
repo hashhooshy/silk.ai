@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>purl.ai - Redefining Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@300;500;700&display=swap');
+
+        :root {
+            --bg-color: #fafafa;
+            --text-main: #1e293b;
+            --accent: #6366f1;
+        }
+
+        /* Hide Scrollbars Globally */
+        * { scrollbar-width: none; -ms-overflow-style: none; }
+        *::-webkit-scrollbar { display: none; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            transition: background-color 0.5s ease;
+        }
+
+        .immersive-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.8) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(340,100%,76%,0.15) 0px, transparent 50%);
+            z-index: -2;
+            filter: blur(60px);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        body.ui-immersive .immersive-bg { opacity: 1; }
+        
+        .siri-container {
+            position: absolute;
+            inset: -4px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .siri-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 9999px;
+            padding: 2px;
+            background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+            background-size: 200% 200%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.4;
+            filter: blur(4px);
+            animation: moveGradient 4s linear infinite;
+        }
+
+        .siri-ring-2 {
+            inset: -4px;
+            background: linear-gradient(90deg, #0ea5e9, #d946ef, #f43f5e, #0ea5e9);
+            background-size: 200% 200%;
+            opacity: 0.2;
+            filter: blur(8px);
+            animation: moveGradient 6s linear infinite reverse;
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        body.ui-immersive .glass {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+        }
+
+        .smooth-transition { transition: all 0.5s cubic-bezier(0.2, 0, 0, 1); }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.2, 0, 0, 1) forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        #purl-form {
+            width: 100%;
+            max-width: 420px;
+            height: 48px;
+            transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        body.ui-immersive #purl-form {
+            max-width: 600px;
+            height: 60px;
+            border-radius: 2rem;
+        }
+
+        #creative-canvas {
+            transform: translateX(100%);
+            background: white;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #creative-canvas.canvas-open { transform: translateX(0); }
+        
+        .reasoning-box {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            font-family: 'JetBrains Mono', monospace;
+            border-left: 1px solid #f1f5f9;
+            padding-left: 10px;
+            margin-bottom: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .reasoning-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            animation: fadeInStep 0.3s forwards;
+        }
+
+        @keyframes fadeInStep { to { opacity: 1; } }
+
+        .artifact-h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 2.5rem; color: #0f172a; margin-bottom: 1rem; line-height: 1.1; }
+        .artifact-p { font-family: 'Outfit', sans-serif; font-size: 1.05rem; line-height: 1.7; color: #334155; margin-bottom: 1.25rem; }
+        
+        .formula-block {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.75rem;
+            text-align: center;
+            margin: 2rem 0;
+            outline: none;
+        }
+
+        .zap-active {
+            color: #6366f1 !important;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
+            animation: pulse-energy 1.5s infinite alternate;
+        }
+
+        @keyframes pulse-energy {
+            from { transform: scale(1); opacity: 0.8; }
+            to { transform: scale(1.1); opacity: 1; }
+        }
+
+        #selection-hud {
+            position: fixed;
+            z-index: 1000;
+            display: none;
+            pointer-events: auto;
+        }
+        
+        #ask-purl-selection {
+            background-color: #000;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+            white-space: nowrap;
+        }
+        
+        #ask-purl-selection:hover {
+            transform: scale(1.05);
+            background-color: #111;
+        }
+
+        .poem-container {
+            font-family: 'Lora', serif;
+            font-size: 1.2rem;
+            line-height: 2;
+            font-style: italic;
+            color: #475569;
+            white-space: pre-wrap;
+            border-left: 2px solid #e2e8f0;
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .header-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 9999px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            transition: all 0.3s ease;
+        }
+
+        [contenteditable="true"]:focus {
+            outline: none;
+            background-color: transparent !important;
+        }
+
+        .max-energy-glow {
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+        }
+
+        .research-node {
+            border: 1px solid #f1f5f9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+    </style>
+</head>
+<body class="text-slate-900 h-screen w-screen flex relative selection:bg-indigo-100 overflow-hidden">
+
+    <div class="immersive-bg"></div>
+
+    <div id="selection-hud">
+        <button id="ask-purl-selection">ASK PURL.AI</button>
+    </div>
+
+    <header class="absolute top-0 left-0 w-full p-8 flex justify-between items-start z-50">
+        <div id="logo-trigger" class="cursor-default">
+            <span class="text-sm font-bold tracking-widest text-slate-800 uppercase">purl.ai</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <button id="ui-toggle-btn" class="header-badge hover:text-slate-900 transition-all">
+                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                <span id="ui-label">Minimal UI</span>
+            </button>
+            <button id="canvas-toggle-btn" class="hidden text-slate-400 hover:text-slate-900 transition-all">
+                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-container" class="flex-1 h-full flex flex-col items-center relative z-10 smooth-transition px-4 w-full">
+        <div id="welcome-state-container" class="h-full flex flex-col justify-center items-center w-full smooth-transition">
+            <div id="hero-text" class="text-center mb-8">
+                <h1 id="main-title" class="text-3xl font-light text-slate-800 tracking-tight transition-all duration-700">
+                    Simply <span class="text-slate-400">ask.</span>
+                </h1>
+            </div>
+            <div id="initial-input-flow" class="w-full flex flex-col items-center smooth-transition">
+                <div id="input-container" class="relative z-20 transition-all duration-500">
+                    <div class="siri-container"><div class="siri-ring"></div><div class="siri-ring-2"></div></div>
+                    <form id="purl-form" class="relative glass rounded-full flex items-center px-2 shadow-sm">
+                        <button type="button" id="deep-think-btn" class="p-2 text-slate-300 hover:text-indigo-500 transition-colors">
+                            <i data-lucide="zap" class="w-4 h-4"></i>
+                        </button>
+                        <input type="text" id="user-input" placeholder="Neural interface active..." class="w-full bg-transparent border-none outline-none text-slate-800 placeholder-slate-300 px-3 font-light" autocomplete="off">
+                        <button type="submit" id="submit-btn" class="p-2 text-slate-300 hover:text-slate-900 transition-colors">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                    </form>
+                </div>
+                <div id="quick-prompts" class="mt-8 flex gap-4 opacity-40 hover:opacity-100 transition-opacity"></div>
+            </div>
+        </div>
+
+        <div id="chat-wrapper" class="w-full max-w-2xl flex-1 min-h-0 overflow-hidden flex flex-col hidden opacity-0 smooth-transition relative">
+            <div id="chat-history" class="flex-1 overflow-y-auto pt-24 pb-32 space-y-8"></div>
+        </div>
+    </main>
+    
+    <div id="fixed-bottom-bar" class="fixed bottom-0 left-0 w-full flex flex-col items-center p-8 z-20 pointer-events-none hidden smooth-transition">
+        <div id="fixed-input-target" class="w-full max-w-2xl pointer-events-auto flex flex-col items-center"></div>
+    </div>
+
+    <aside id="creative-canvas" class="fixed top-0 right-0 h-full w-full md:w-1/2 border-l border-slate-100 z-40 flex flex-col shadow-2xl">
+        <div class="flex items-center gap-4 p-6 border-b border-slate-50">
+            <div class="header-badge bg-white shadow-sm">
+                <i id="canvas-icon" data-lucide="brain-circuit" class="w-3.5 h-3.5 text-indigo-500"></i>
+                <span id="canvas-type">Neural Output</span>
+            </div>
+        </div>
+        <div id="canvas-content" class="flex-1 overflow-y-auto p-10 text-sm leading-relaxed text-slate-700 font-light outline-none"></div>
+        <div class="p-6 bg-slate-50 flex justify-center border-t border-slate-100">
+            <span id="canvas-footer" class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">Memory Buffer: <span id="memory-count">0</span> Nodes</span>
+        </div>
+    </aside>
+    
+    <script>
+        lucide.createIcons();
+
+        const form = document.getElementById('purl-form');
+        const input = document.getElementById('user-input');
+        const mainContainer = document.getElementById('main-container'); 
+        const welcomeStateContainer = document.getElementById('welcome-state-container'); 
+        const chatWrapper = document.getElementById('chat-wrapper');
+        const chatHistory = document.getElementById('chat-history');
+        const inputContainer = document.getElementById('input-container'); 
+        const fixedBottomBar = document.getElementById('fixed-bottom-bar'); 
+        const fixedInputTarget = document.getElementById('fixed-input-target'); 
+        const deepThinkBtn = document.getElementById('deep-think-btn');
+        const canvasToggleBtn = document.getElementById('canvas-toggle-btn');
+        const creativeCanvas = document.getElementById('creative-canvas');
+        const canvasContent = document.getElementById('canvas-content');
+        const canvasType = document.getElementById('canvas-type');
+        const canvasIcon = document.getElementById('canvas-icon');
+        const uiToggleBtn = document.getElementById('ui-toggle-btn');
+        const uiLabel = document.getElementById('ui-label');
+        const mainTitle = document.getElementById('main-title');
+        const quickPrompts = document.getElementById('quick-prompts');
+        const selectionHud = document.getElementById('selection-hud');
+        const askSelectionBtn = document.getElementById('ask-purl-selection');
+        const memoryCounter = document.getElementById('memory-count');
+
+        let isSessionActive = false;
+        let isCanvasOpen = false;
+        let isImmersiveMode = false;
+        let isZapEnabled = false;
+        let cycleIndex = 0;
+        let selectedText = "";
+        
+        // --- LEARNING SYSTEM ---
+        let memoryBuffer = []; 
+
+        document.addEventListener('mouseup', () => {
+            const selection = window.getSelection();
+            const text = selection.toString().trim();
+            if (text.length > 2) {
+                selectedText = text;
+                const range = selection.getRangeAt(0);
+                const rect = range.getBoundingClientRect();
+                selectionHud.style.display = 'block';
+                selectionHud.style.left = (rect.left + rect.width / 2 - selectionHud.offsetWidth / 2) + 'px';
+                selectionHud.style.top = (rect.top - 40 + window.scrollY) + 'px';
+            } else {
+                selectionHud.style.display = 'none';
+            }
+        });
+
+        askSelectionBtn.addEventListener('click', () => {
+            if (!selectedText) return;
+            selectionHud.style.display = 'none';
+            input.value = `RESEARCH: ${selectedText}`;
+            form.dispatchEvent(new Event('submit'));
+        });
+
+        const knowledgeGraph = {
+            math: { keywords: ['+', '-', 'x', '/', '*', 'calculate', 'solve', 'sum', 'math', '=', '2+2', '1+1'], type: 'MATH.SOLVER', icon: 'binary' },
+            poem: { keywords: ['poem', 'poetry', 'sonnet', 'haiku', 'verse', 'rhyme'], type: 'CREATIVE.ENGINE', icon: 'pen-tool' },
+            computing: { keywords: ['code', 'python', 'javascript', 'react', 'algorithm', 'function', 'class', 'build'], type: 'DEV.TERMINAL', icon: 'terminal' },
+            research: { keywords: ['research', 'ai', 'neural', 'network', 'deep', 'architecture'], type: 'RESEARCH.INTERNAL', icon: 'microscope' }
+        };
+
+        deepThinkBtn.addEventListener('click', () => {
+            isZapEnabled = !isZapEnabled;
+            const icon = deepThinkBtn.querySelector('i');
+            if (icon) icon.classList.toggle('zap-active', isZapEnabled);
+            form.classList.toggle('max-energy-glow', isZapEnabled);
+            input.placeholder = isZapEnabled ? "Max Energy: Trillion-Node Compute engaged..." : "Neural interface active...";
+        });
+
+        const promptRotator = [
+            [ {l: "Neural Research", q: "Research Transformer Attention"}, {l: "Haiku", q: "Haiku about silence"}, {l: "Calculus", q: "Solve 20 x 4"} ],
+            [ {l: "Architecture", q: "Research CNN layers"}, {l: "Poem", q: "Poem about the future"}, {l: "Code", q: "Python recursive function"} ]
+        ];
+
+        function rotateSuggestions() {
+            const currentSet = promptRotator[cycleIndex % promptRotator.length];
+            quickPrompts.innerHTML = '';
+            currentSet.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "prompt-btn text-[11px] uppercase tracking-widest text-slate-500 hover:text-slate-900";
+                btn.innerText = item.l;
+                btn.onclick = () => { input.value = item.q; form.dispatchEvent(new Event('submit')); };
+                quickPrompts.appendChild(btn);
+            });
+            cycleIndex++;
+        }
+        rotateSuggestions();
+
+        uiToggleBtn.addEventListener('click', () => {
+            isImmersiveMode = !isImmersiveMode;
+            document.body.classList.toggle('ui-immersive', isImmersiveMode);
+            uiLabel.innerText = isImmersiveMode ? "Immersive UI" : "Minimal UI";
+            mainTitle.innerHTML = isImmersiveMode ? 'Intelligence <span class="text-indigo-600 font-normal">refined</span>.' : 'Simply <span class="text-slate-400">ask.</span>';
+        });
+
+        function toggleCanvas(force) {
+            isCanvasOpen = force !== undefined ? force : !isCanvasOpen;
+            creativeCanvas.classList.toggle('canvas-open', isCanvasOpen);
+            if (window.innerWidth >= 768) {
+                mainContainer.style.width = isCanvasOpen ? '50%' : '100%';
+                fixedBottomBar.style.width = isCanvasOpen ? '50%' : '100%';
+            }
+        }
+        canvasToggleBtn.addEventListener('click', () => toggleCanvas());
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const val = input.value.trim();
+            if (!val) return;
+            if (!isSessionActive) {
+                isSessionActive = true;
+                welcomeStateContainer.style.opacity = '0';
+                setTimeout(() => {
+                    welcomeStateContainer.style.display = 'none';
+                    chatWrapper.classList.remove('hidden');
+                    chatWrapper.classList.add('opacity-100');
+                    fixedInputTarget.appendChild(inputContainer);
+                    fixedBottomBar.classList.remove('hidden');
+                    canvasToggleBtn.classList.remove('hidden');
+                }, 400);
+            }
+            addMessage('user', val);
+            input.value = '';
+            await processResponse(val);
+        });
+
+        function addMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'} fade-in-up`;
+            const inner = document.createElement('div');
+            inner.className = role === 'user' 
+                ? 'max-w-[85%] text-sm text-slate-600 bg-slate-100/50 px-4 py-2 rounded-2xl shadow-sm' 
+                : 'max-w-[85%] text-sm text-slate-800 leading-relaxed w-full';
+            inner.innerHTML = text;
+            div.appendChild(inner);
+            chatHistory.appendChild(div);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            return inner;
+        }
+
+        function simpleMathParser(query) {
+            try {
+                const sanitized = query.toLowerCase().replace(/x/g, '*').replace(/solve|calculate|math/g, '').trim();
+                const match = sanitized.match(/[0-9\+\-\*\/\s\(\)\.]+/);
+                if (match) {
+                    const result = eval(match[0]);
+                    return result;
+                }
+            } catch (e) {
+                return "ERR";
+            }
+            return "SOLVED";
+        }
+
+        async function processResponse(query) {
+            const container = addMessage('ai', '');
+            const category = detectCategory(query);
+            
+            const reasoningBox = document.createElement('div');
+            reasoningBox.className = 'reasoning-box';
+            container.appendChild(reasoningBox);
+
+            const addStep = async (txt, delay = 60) => {
+                const step = document.createElement('div');
+                step.className = 'reasoning-step';
+                step.innerHTML = `<span class="text-slate-300 mr-2">></span><span>${txt}</span>`;
+                reasoningBox.appendChild(step);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                await new Promise(r => setTimeout(r, delay));
+            };
+
+            await addStep("Initializing Trillion-Node Recursive Audit...");
+            await addStep(`Audit Loop 1: Core intent alignment...`);
+            await addStep(`Audit Loop 2: Checking structural integrity...`);
+            await addStep("Cross-referencing logic loops... Success.");
+            await addStep("Final refinement: Optimizing for user-defined strictness...");
+            await addStep("Rendering refined output...");
+
+            memoryBuffer.push(query);
+            memoryCounter.innerText = memoryBuffer.length;
+
+            let responseHTML = '';
+            let artifact = null;
+
+            if (category.key === 'math') {
+                const result = simpleMathParser(query);
+                responseHTML = `<div class="formula-block">${result}</div>`;
+                artifact = { type: 'MATH.SOLVER', content: `<h1 class="artifact-h1">Math Result</h1><div class="formula-block">${result}</div>` };
+            } else if (category.key === 'poem') {
+                const poem = "In circuits where the pulse is bright,\nTrillions of stars pierce through the night.\nNo heart of clay, but thought of fire,\nWeaving threads of deep desire.";
+                responseHTML = `<div class="poem-container" contenteditable="true">${poem}</div>`;
+                artifact = { type: 'POETRY.SYNTHESIS', content: `<h1 class="artifact-h1">Verse</h1><div class="poem-container" contenteditable="true">${poem}</div>` };
+            } else if (category.key === 'research' || query.toLowerCase().includes('research')) {
+                const res = `
+                    <h1 class="artifact-h1">Neural Research</h1>
+                    <div class="research-node">
+                        <strong>Node Focus:</strong> ${query}<br>
+                        <strong>Status:</strong> Synaptic mapping complete.<br>
+                        <strong>Analysis:</strong> Recursive loop audits confirm data integrity across all primary nodes.
+                    </div>
+                `;
+                responseHTML = `<p>Internal research complete. Neural audit verified.</p>`;
+                artifact = { type: 'RESEARCH.INTERNAL', content: res };
+                toggleCanvas(true);
+            } else {
+                responseHTML = `<p>Processed <b>"${query}"</b> with enhanced neural refinement.</p>`;
+                artifact = { type: 'GENERAL.SYNTHESIS', content: `<h1 class="artifact-h1">Synthesis</h1><p class="artifact-p">Conceptual mapping for "${query}" is locked into memory.</p>` };
+            }
+
+            const textDiv = document.createElement('div');
+            textDiv.innerHTML = responseHTML;
+            container.appendChild(textDiv);
+            if (artifact) renderArtifact(artifact, category);
+            rotateSuggestions();
+        }
+
+        function detectCategory(query) {
+            const q = query.toLowerCase();
+            let bestMatch = { type: 'GENERAL.SYNTHESIS', score: 0, key: 'general', icon: 'brain' };
+            for (const [key, data] of Object.entries(knowledgeGraph)) {
+                let score = 0;
+                data.keywords.forEach(kw => { if (q.includes(kw)) score++; });
+                if (score > bestMatch.score) bestMatch = { type: data.type, score: score, key: key, icon: data.icon };
+            }
+            return bestMatch;
+        }
+
+        function renderArtifact(art, category) {
+            canvasType.innerText = art.type;
+            canvasContent.innerHTML = art.content;
+            if(category && category.icon) canvasIcon.setAttribute('data-lucide', category.icon);
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
